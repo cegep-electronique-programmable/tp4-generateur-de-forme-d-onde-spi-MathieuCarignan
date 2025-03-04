@@ -51,9 +51,9 @@ void main(void)
     
     SYSTEM_Initialize();
     
-    //INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable();
     
-    //INTERRUPT_PeripheralInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
     
     //TMR1_SetInterruptHandler(myTimer1_ISR);
 
@@ -64,7 +64,7 @@ void main(void)
     {
         
         
-//        //Code de test pour valider le fonctionnement du potentiomètre
+        //Code de test pour valider le fonctionnement du potentiomètre
 //        {
 //            printf("\n\rEntrer une valeur entre 0 et 255, suivie de [Enter]");
 //            valeur = 0;
@@ -72,9 +72,9 @@ void main(void)
 //            {
 //                do
 //                {
-//                    if(EUSART1_is_rx_ready()){
+////                    if(EUSART1_is_rx_ready()){
 //                        lecture = EUSART1_Read();
-//                    }                    
+////                    }                    
 //                }
 //                while (((lecture < '0') || (lecture > '9')) && (lecture != 0x0d));
 //                if ((lecture >= '0') && (lecture <= '9')) 
@@ -85,7 +85,7 @@ void main(void)
 //            }
 //        
 //            while ((lecture != 0x0d) && (valeur < 26)); 
-//            tension = (float)5* valeur /256;
+//            tension = (float)5 * valeur/256;
 //            printf("\n\rValeur = %u tension = %3.2f ", valeur, tension);
 //            out_dig(valeur);    // envoi sur potentiometre 
 //        } 
@@ -103,18 +103,18 @@ void main(void)
 //---------------------------------------------------------------
 // Routine d'interruption du Timer1
 //---------------------------------------------------------------
-//void myTimer1_ISR(void){
-//    static uint8_t i; 
-//    
-//    TMR1_WriteTimer(0x3456);
-//    
-//    out_dig(sin[i]);
-//    
-//    i++;
-//    if (i==MAX){
-//        i=0;
-//    }
-//}
+void myTimer1_ISR(void){
+    static uint8_t i; 
+    
+    TMR1_WriteTimer(0x3456);
+    
+    out_dig(sin[i]);
+    
+    i++;
+    if (i==MAX){
+        i=0;
+    }
+}
     
 //----------------------------------------------------------------
 // Transmission au pot. d'une onde comprenant 60 points par cycle.
@@ -124,7 +124,7 @@ void sinus_60(void) {
     while(1) {
         for (i=0;i<MAX;i++) {
             out_dig(sin[i]);
-			__delay_ms(1);
+			__delay_us(275);
             }
         } 
 }
