@@ -11,8 +11,17 @@
 */
 #include <stdio.h>
 #include "mcc_generated_files/mcc.h"
+#include "ecran.h"
 
 #define MAX 60
+
+enum{
+    Selection,
+    Triangle,
+    Sinus,
+    Carree
+};
+
 uint8_t const sin[MAX] ={
               254,254,252,249,244,238,231,222,213,202,
               191,179,167,154,141,127,114,101,88,76,
@@ -37,9 +46,20 @@ uint8_t const tri[MAX] ={
 			 162,153,145,136,128,119,111,102,94,86,
 			 77,68,60,51,43,34,26,17,9,0};
 
+int frequence = 5;
+int reset = 0xFCBF;
+int Etat = Selection;
+
+uint8_t TimerI = 0;
+uint8_t Si = 0;
+uint8_t Ti = 0;
+uint8_t Ci = 0;
+
 void out_dig(uint8_t x);
 void sinus_60(void);
-//void myTimer1_ISR(void);
+void triangle_60(void);
+void carree_60(void);
+void myTimer1_ISR(void);
 
 /*
                          Main application
@@ -49,51 +69,208 @@ void main(void)
     uint8_t valeur, lecture;
     float tension;
     
+    int RxData = '0';
+    
     SYSTEM_Initialize();
     
     INTERRUPT_GlobalInterruptEnable();
     
     INTERRUPT_PeripheralInterruptEnable();
     
-    //TMR1_SetInterruptHandler(myTimer1_ISR);
+    TMR1_SetInterruptHandler(myTimer1_ISR);
 
     SSPCON1bits.SSPEN = 1;
     IO_RA5_SetHigh();
     
+    videEcran();
+    curseurPosition(0x00);
+    printf("Choisissez une onde");
+    curseurPosition(0x14);
+    printf("[S]in [T]ri [C]ar");
+    
     while (1)
     {
+        if (EUSART1_is_rx_ready())
+        {
+            RxData = EUSART1_Read();
+        }
+        switch (Etat)
+        {
+            case Selection:
+                
+                if(RxData == 's')
+                {
+                    Etat = Sinus;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Sinus");
+                    curseurPosition(0x14);
+                    printf("[T]ri [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 't')
+                {
+                    Etat = Triangle;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Triangle");
+                    curseurPosition(0x14);
+                    printf("[S]in [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'c')
+                {
+                    Etat = Carree;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Carree");
+                    curseurPosition(0x14);
+                    printf("[T]ri [S]in [R]etour");
+                    RxData = '0';
+                }
+                break;
+            
+            case Sinus:
+                
+                if(RxData == 't')
+                {
+                    Etat = Triangle;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Triangle");
+                    curseurPosition(0x14);
+                    printf("[S]in [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'c')
+                {
+                    Etat = Carree;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Carree");
+                    curseurPosition(0x14);
+                    printf("[T]ri [S]in [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'r')
+                {
+                    Etat = Selection;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Choisissez une onde");
+                    curseurPosition(0x14);
+                    printf("[S]in [T]ri [C]ar");
+                    RxData = '0';
+                }
+                break;
+                
+            case Triangle:
+                
+                if(RxData == 's')
+                {
+                    Etat = Sinus;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Sinus");
+                    curseurPosition(0x14);
+                    printf("[T]ri [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'c')
+                {
+                    Etat = Carree;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Carree");
+                    curseurPosition(0x14);
+                    printf("[T]ri [S]in [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'r')
+                {
+                    Etat = Selection;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Choisissez une onde");
+                    curseurPosition(0x14);
+                    printf("[S]in [T]ri [C]ar");
+                    RxData = '0';
+                }
+                break;
+                
+            case Carree:
+                
+                if(RxData == 's')
+                {
+                    Etat = Sinus;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Sinus");
+                    curseurPosition(0x14);
+                    printf("[T]ri [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 't')
+                {
+                    Etat = Triangle;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Onde: Triangle");
+                    curseurPosition(0x14);
+                    printf("[S]in [C]ar [R]etour");
+                    RxData = '0';
+                }
+                else if(RxData == 'r')
+                {
+                    Etat = Selection;
+                    videEcran();
+                    curseurPosition(0x00);
+                    printf("Choisissez une onde");
+                    curseurPosition(0x14);
+                    printf("[S]in [T]ri [C]ar");
+                    RxData = '0';
+                }
+                break;
+        }
         
+        if(Etat != Selection)
+        {
+            if(RxData == '+')
+            {
+                if (frequence > 1)
+                {
+                    frequence -= 1;
+                    RxData = '0';
+                }
+            }
+            else if(RxData == '-')
+            {
+                if (frequence < 5)
+                {
+                    frequence += 1;
+                    RxData = '0';
+                }
+            }
+        }
         
-        //Code de test pour valider le fonctionnement du potentiomètre
-//        {
-//            printf("\n\rEntrer une valeur entre 0 et 255, suivie de [Enter]");
-//            valeur = 0;
-//            do
-//            {
-//                do
-//                {
-////                    if(EUSART1_is_rx_ready()){
-//                        lecture = EUSART1_Read();
-////                    }                    
-//                }
-//                while (((lecture < '0') || (lecture > '9')) && (lecture != 0x0d));
-//                if ((lecture >= '0') && (lecture <= '9')) 
-//                {
-//                    valeur = 10 * valeur + lecture - '0';
-//                    putchar(lecture);
-//                }
-//            }
-//        
-//            while ((lecture != 0x0d) && (valeur < 26)); 
-//            tension = (float)5 * valeur/256;
-//            printf("\n\rValeur = %u tension = %3.2f ", valeur, tension);
-//            out_dig(valeur);    // envoi sur potentiometre 
-//        } 
-        
-        
-        
-        //Code de test pour générer une onde sinusoidale
-        sinus_60();
+        switch (frequence)
+        {
+            case 1:
+                reset = 0xF2FB;
+                break;
+            case 2:
+                reset = 0xEFB9;
+                break;
+            case 3:
+                reset = 0xEA4C;
+                break;
+            case 4:
+                reset = 0xDF73;
+                break;
+            case 5:
+                reset = 0xBEE5;
+                break;
+        }
         
     }
 
@@ -104,15 +281,19 @@ void main(void)
 // Routine d'interruption du Timer1
 //---------------------------------------------------------------
 void myTimer1_ISR(void){
-    static uint8_t i; 
+    TMR1_WriteTimer(reset);
     
-    TMR1_WriteTimer(0x3456);
-    
-    out_dig(sin[i]);
-    
-    i++;
-    if (i==MAX){
-        i=0;
+    switch (Etat)
+    {
+        case Sinus:
+            sinus_60();
+            break;
+        case Triangle:
+            triangle_60();
+            break;
+        case Carree:
+            carree_60();
+            break;
     }
 }
     
@@ -120,13 +301,36 @@ void myTimer1_ISR(void){
 // Transmission au pot. d'une onde comprenant 60 points par cycle.
 //----------------------------------------------------------------
 void sinus_60(void) {
-    uint8_t i;
-    while(1) {
-        for (i=0;i<MAX;i++) {
-            out_dig(sin[i]);
-			__delay_us(275);
-            }
-        } 
+    out_dig(sin[Si]);
+    Si++;
+    if(Si == MAX)
+    {
+        Si = 0;
+    }
+}
+
+//----------------------------------------------------------------
+// Transmission au pot. d'une onde comprenant 60 points par cycle.
+//----------------------------------------------------------------
+void triangle_60(void) {
+    out_dig(tri[Ti]);
+    Ti++;
+    if(Ti == MAX)
+    {
+        Ti = 0;
+    }
+}
+
+//----------------------------------------------------------------
+// Transmission au pot. d'une onde comprenant 60 points par cycle.
+//----------------------------------------------------------------
+void carree_60(void) {
+    out_dig(car[Ci]);
+    Ci++;
+    if(Ci == MAX)
+    {
+        Ci = 0;
+    }
 }
 
 
