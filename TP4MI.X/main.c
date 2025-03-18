@@ -81,6 +81,7 @@ void main(void)
 
     SSPCON1bits.SSPEN = 1;
     IO_RA5_SetHigh();
+    out_dig(0);
     
     videEcran();
     curseurPosition(0x00);
@@ -161,6 +162,7 @@ void main(void)
                     curseurPosition(0x14);
                     printf("[S]in [T]ri [C]ar");
                     RxData = '0';
+                    out_dig(0);
                 }
                 break;
                 
@@ -195,6 +197,7 @@ void main(void)
                     curseurPosition(0x14);
                     printf("[S]in [T]ri [C]ar");
                     RxData = '0';
+                    out_dig(0);
                 }
                 break;
                 
@@ -229,6 +232,7 @@ void main(void)
                     curseurPosition(0x14);
                     printf("[S]in [T]ri [C]ar");
                     RxData = '0';
+                    out_dig(0);
                 }
                 break;
         }
