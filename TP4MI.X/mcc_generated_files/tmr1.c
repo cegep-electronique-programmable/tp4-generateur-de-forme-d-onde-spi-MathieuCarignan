@@ -68,11 +68,11 @@ void TMR1_Initialize(void)
     //T1GSS T1G_pin; TMR1GE disabled; T1GTM disabled; T1GPOL low; T1GGO done; T1GSPM disabled; 
     T1GCON = 0x00;
 
-    //TMR1H 242; 
-    TMR1H = 0xF2;
+    //TMR1H 190; 
+    TMR1H = 0xBE;
 
-    //TMR1L 251; 
-    TMR1L = 0xFB;
+    //TMR1L 229; 
+    TMR1L = 0xE5;
 
     // Clearing IF flag before enabling the interrupt.
     PIR1bits.TMR1IF = 0;
